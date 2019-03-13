@@ -133,38 +133,21 @@ def multi_train(X, Y, W, u, b, n_trainnings):
     return W
 
 
-def evaluar(W, X, Yd, b, dimension_one):  # dimension_one =1 => entra un vector, =0=>entra una matriz
+def evaluar(W, X, Yd, b):
     well_classified = bad_classified = 0
-    if dimension_one == 1:
-        fin = 1
-    else:
-        fin = len(X)
-    for i in range(0, fin):
+    for i in range(0, len(X)):
         propagacion = []
-
-        if dimension_one == 1:
-            propagacion.append(activation_function(multiply_numpy(X, W[0]), b))
-        else:
-            propagacion.append(activation_function(multiply_numpy(X[i], W[0]), b))
+        propagacion.append(activation_function(multiply_numpy(X[i], W[0]), b))
         for j in range(1, len(W)):
             propagacion.append(activation_function(multiply_numpy(propagacion[j - 1], W[j]), b))
-        y_calculated = y_result(propagacion[len(W) - 1])
+        y_calculated = [y_result(propagacion[len(W) - 1])]
 
-        if fin == 1:
-            if np.array_equal(y_calculated, Yd):
-                well_classified += 1
-            #               plt.plot(X[i][0], X[i][1], 'ro')
+        if np.array_equal(y_calculated, Yd):
+            well_classified += 1
+        #               plt.plot(X[i][0], X[i][1], 'ro')
 
-            else:
-                bad_classified += 1
-        #               plt.plot(X[i][0], X[i][1], 'ob')
         else:
-            if np.array_equal(y_calculated, Yd):
-                well_classified += 1
-            #               plt.plot(X[i][0], X[i][1], 'ro')
-
-            else:
-                bad_classified += 1
+            bad_classified += 1
         #               plt.plot(X[i][0], X[i][1], 'ob')
 
     Exactitud = well_classified / (well_classified + bad_classified)
@@ -193,12 +176,12 @@ def leave_one_out(X, Y, W, Pcen_acc, n_trainnings, u, b):
         hits = 0
         aux_x = []
         aux_y = []
-        X_for_test = X[i]
-        Y_for_test = Y[i]
+        X_for_test = [X[i]]
+        Y_for_test = [Y[i]]
         X_less_one = quit_row(X, i)
         Y_less_one = quit_row(Y, i)
         Waux = multi_train(X_less_one, Y_less_one, W, u, b, n_trainnings)
-        hits += evaluar(Waux, X_for_test, Y_for_test, b, 1)
+        hits += evaluar(Waux, X_for_test, Y_for_test, b)
         print("train number :", i, "hits", hits)
     print(hits / len(X))
 
