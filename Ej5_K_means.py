@@ -1,10 +1,9 @@
 import csv
 from numpy import array
 import numpy as np
-from copy import deepcopy
 import matplotlib.pyplot as plt
 import random
-import srt
+from copy import deepcopy
 
 
 def csv_save(file_name_training):
@@ -57,7 +56,16 @@ def disorder_index(A):
 def make_groups(A, n_k):
     index = disorder_index(A)
     disorder_A = A[index]
-    return np.split(disorder_A, n_k)
+    B = deepcopy(A)
+    if len(disorder_A) % n_k != 0:
+        index = list(range(len(A) - len(disorder_A) % n_k, len(A)))
+        B = np.delete(A, index, 0)
+    B = np.split(B, n_k)
+    x_size = len(A[0])
+    for i in range(len(index)):
+        B[i] = np.append(B[i], A[index[i]])
+        B[i]=B[i].reshape(int(len(B[i]) / x_size), x_size)
+    return B
 
 
 def centroide(A, size):
@@ -172,7 +180,7 @@ def mean_distance(groups, C):
 # MAIN#
 # Inputs#
 borrar_col = []  # elijo las columnas de datos que no quiero comparar o cargar
-K = 10  # tiene que ser divisor de 150 . ej:1,2,3,5,10,15,30...
+K = 4  # tiene que ser divisor de 150 . ej:1,2,3,5,10,15,30...
 colA = 0
 colB = 1
 
@@ -181,3 +189,4 @@ X = string_to_float(csv_save("irisclu.csv"))  # cargo datos de entrenamiento y c
 groups, C = k_means(X, K)
 show_data(groups, C, colA, colB)
 mean_distance(groups, C)
+
